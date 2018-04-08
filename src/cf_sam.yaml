@@ -9,6 +9,11 @@ Resources:
       Handler: index.handler
       Runtime: python3.6
       Environment:
-        Variables: 
+        Variables:
           TEST_STRING: Why hello there!
-
+      Events:
+        GetResource:
+          Type: Api
+          Properties:
+            Path: /flag-spotter
+            Method: get
