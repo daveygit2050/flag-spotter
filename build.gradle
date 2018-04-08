@@ -1,0 +1,31 @@
+task cloudFormationPackage(
+  type: Exec, 
+  dependsOn: 'createTargetDirectory'
+){
+  group "CloudFormation"
+  description "Packages the application for deployment to AWS"
+  commandLine "aws", "cloudformation", "package", "--template-file", "src/cf_sam.yaml", "--output-template-file", "target/sam-output.yaml", "--s3-bucket", "goldsquare-state"
+}
+
+task cloudFormationDeploy(
+  type: Exec, 
+  dependsOn: 'createTargetDirectory'
+){
+  shouldRunAfter "cloudFormationPackage"
+  group "CloudFormation"
+  description "Deploys the application to AWS"
+  commandLine "aws", "cloudformation", "deploy", "--template-file", "target/sam-output.yaml", "--stack-name", "flag-spotter", "--capabilities", "CAPABILITY_IAM"
+}
+
+task createTargetDirectory {
+  group "Preparation"
+  description "Creates the target directory if it doesn't exist"
+  buildDir = new File(rootProject.projectDir, "target/")
+  buildDir.mkdirs()
+}
+
+task run(dependsOn: ['cloudFormationPackage', 'cloudFormationDeploy']) {
+  group "Running"
+  description "Packages and deploys the application to AWS"
+}
+

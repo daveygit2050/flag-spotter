@@ -1,6 +1,8 @@
 # Build files
+.gradle/
 target/
 
 # Editor files
 *.swp
+
 
