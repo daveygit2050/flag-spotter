@@ -1,4 +1,4 @@
-task cloudFormationPackage(
+task cloudFormationPackage (
   type: Exec, 
   dependsOn: 'createTargetDirectory'
 ){
@@ -7,7 +7,7 @@ task cloudFormationPackage(
   commandLine "aws", "cloudformation", "package", "--template-file", "src/cf_sam.yaml", "--output-template-file", "target/sam-output.yaml", "--s3-bucket", "goldsquare-state"
 }
 
-task cloudFormationDeploy(
+task cloudFormationDeploy (
   type: Exec, 
   dependsOn: 'createTargetDirectory'
 ){
@@ -17,6 +17,14 @@ task cloudFormationDeploy(
   commandLine "aws", "cloudformation", "deploy", "--template-file", "target/sam-output.yaml", "--stack-name", "flag-spotter", "--capabilities", "CAPABILITY_IAM"
 }
 
+task cloudFormationDelete (
+  type: Exec 
+){
+  group "CloudFormation"
+  description "Removes all traces of the application in AWS"
+  commandLine "aws", "cloudformation", "delete-stack", "--stack-name", "flag-spotter"
+}
+
 task createTargetDirectory {
   group "Preparation"
   description "Creates the target directory if it doesn't exist"
@@ -24,8 +32,17 @@ task createTargetDirectory {
   buildDir.mkdirs()
 }
 
-task run(dependsOn: ['cloudFormationPackage', 'cloudFormationDeploy']) {
+task apply (
+  dependsOn: ['cloudFormationPackage', 'cloudFormationDeploy']
+){
   group "Running"
   description "Packages and deploys the application to AWS"
+}
+
+task destroy (
+  dependsOn: 'cloudFormationDelete'
+){
+  group "Running"
+  description "Removes the application from AWS"
 }
 
