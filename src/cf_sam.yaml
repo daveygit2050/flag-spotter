@@ -8,12 +8,24 @@ Resources:
     Properties:
       Handler: index.handler
       Runtime: python3.6
+      Policies: AmazonDynamoDBFullAccess # This is too permissive. Need a custom IAM policy here
       Environment:
         Variables:
-          TEST_STRING: Why hello there!
+          TABLE_NAME: !Ref StatsTable
       Events:
         GetResource:
           Type: Api
           Properties:
             Path: /flag-spotter
             Method: get
+
+  StatsTable:
+    Type: AWS::Serverless::SimpleTable
+    Properties:
+      PrimaryKey:
+        Name: country
+        Type: String
+      ProvisionedThroughput:
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1
+
